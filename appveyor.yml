@@ -1,0 +1,18 @@
+init:
+ - appveyor version
+ - sh: echo $APPVEYOR_BUILD_WORKER_IMAGE
+ - sh: echo $APPVEYOR_BUILD_WORKER_CLOUD
+
+environment:
+  MIN_FREE_KILOBYTES: 15728640
+
+test_script:
+  - sh: |
+      if [ $(df -k | awk '/^\/dev/{print $4}') -lt $MIN_FREE_KILOBYTES]; then
+          echo "Free space is less than 15G"
+          exit 2
+      else
+          echo "Free space is more than 15G"
+      fi
+
+build: off
