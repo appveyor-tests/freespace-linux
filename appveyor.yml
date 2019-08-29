@@ -11,8 +11,8 @@ test_script:
   - sh: df -h
   - sh: df -k | awk '/^\/dev/{print $1 $4}'
   - sh: |
-      for VAL in $(df -k | awk '/^\/dev/{print $4}'); do
-          if [ $VAL -lt $MIN_FREE_KILOBYTES]; then
+      for VAL in $(df -k | awk '/ \/$/{print $4}'); do
+          if [ $VAL -lt $MIN_FREE_KILOBYTES ]; then
               echo "Free space: $VAL is less than $MIN_FREE_KILOBYTES"
               exit 2
           else
