@@ -4,19 +4,19 @@ init:
  - sh: echo $APPVEYOR_BUILD_WORKER_CLOUD
 
 environment:
-  # 15 * 1024 * 1024 = 15728640 = 15G
-  MIN_FREE_KILOBYTES: 15728640
+  MIN_FREE_GIGABYTES: 25
 
 test_script:
   - sh: df -h
   - sh: df -k | awk '/^\/dev/{print $1 $4}'
   - sh: |
+      MIN_FREE_KILOBYTES=$(expr $MIN_FREE_GIGABYTES \* 1024 \* 1024)
       for VAL in $(df -k | awk '/ \/$/{print $4}'); do
           if [ $VAL -lt $MIN_FREE_KILOBYTES ]; then
-              echo "Free space: $VAL is less than $MIN_FREE_KILOBYTES"
+              echo "Free space: $VAL KB is less than $MIN_FREE_GIGABYTES"
               exit 2
           else
-              echo "Free space: $VAL is more than $MIN_FREE_KILOBYTES"
+              echo "Free space: $VAL KB is more than $MIN_FREE_GIGABYTES"
           fi
       done
 
