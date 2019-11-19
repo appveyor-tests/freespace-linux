@@ -3,7 +3,18 @@ init:
  - ps: Update-AppveyorBuild -Message "Image '$env:APPVEYOR_BUILD_WORKER_IMAGE'@'$env:APPVEYOR_BUILD_WORKER_CLOUD' cloud. $env:APPVEYOR_REPO_COMMIT_MESSAGE"
  - sh: echo $APPVEYOR_BUILD_WORKER_IMAGE
  - sh: echo $APPVEYOR_BUILD_WORKER_CLOUD
-
+ - sh: |
+     if [ $(uname -s) = "Darwin" ]; then
+         IS_MAC=true
+     else
+         IS_MAC=false
+     fi
+ - sh: |
+     if $IS_MAC; then 
+         DF_OPTS='-m'
+     else
+         DF_OPT='-B 1M'
+     fi
 environment:
   MIN_FREE_MEGABYTES: 15360
 
@@ -11,9 +22,9 @@ test_script:
   - sh: df -h
   - sh: |
       echo "Disk usage in Megabytes:"
-      df -B 1M | awk '/^\/dev/{print $1 $4}'
+      df $DF_OPTS | awk '/^\/dev/{print $1, $4}'
   - sh: |
-      for VAL in $(df -B 1M | awk '/ \/$/{print $4}'); do
+      for VAL in $(df $DF_OPTS | awk '/ \/$/{print $4}'); do
           if [ $VAL -lt $MIN_FREE_MEGABYTES ]; then
               echo "Free space: $VAL MB is less than $MIN_FREE_MEGABYTES MB"
               exit 2
